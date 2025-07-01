@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    shard1:
+      url: jdbc:mysql://localhost:3307/shop1?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=CET&allowPublicKeyRetrieval=true
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+    shard2:
+      url: jdbc:mysql://localhost:3308/shop2?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=CET&allowPublicKeyRetrieval=true
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+    shard3:
+      url: jdbc:mysql://localhost:3309/shop3?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=CET&allowPublicKeyRetrieval=true
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+    shard4:
+      url: jdbc:mysql://localhost:3310/shop4?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=CET&allowPublicKeyRetrieval=true
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+
+  cache:
+    type: redis
+
+  redis:
+    host: redis
+    port: 6379
+
+server:
+  port: 8080
