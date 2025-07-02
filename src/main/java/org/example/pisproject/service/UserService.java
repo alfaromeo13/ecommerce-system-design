@@ -1,13 +1,12 @@
 package org.example.pisproject.service;
 
-
 import lombok.RequiredArgsConstructor;
-import org.example.pisproject.configuration.ShardRoutingDataSource;
 import org.example.pisproject.entity.User;
 import org.example.pisproject.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,52 +15,29 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    /**
-     * Decide the shard key based on user ID
-     * userId % 4 = 0 → shard1
-     * userId % 4 = 1 → shard2
-     * userId % 4 = 2 → shard3
-     * userId % 4 = 3 → shard4
-     */
-    private String resolveShard(Integer userId) {
-        int shardNumber = (userId % 4) + 1;
-        return "shard" + shardNumber;
-    }
-
     @Transactional
     public User createUser(User user) {
-        // Persist user first to get ID (if using auto-increment strategy, this requires extra logic)
-        // For simplicity, assume ID is known or pre-generated
-        String shardKey = resolveShard(2);
-        ShardRoutingDataSource.setCurrentShard(shardKey);
-
-        try {
-            return userRepository.save(user);
-        } finally {
-            ShardRoutingDataSource.clearCurrentShard();
-        }
+        return userRepository.save(user); // Snowflake ID will be generated automatically
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserById(Integer userId) {
-        String shardKey = resolveShard(userId);
-        ShardRoutingDataSource.setCurrentShard(shardKey);
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
+    }
 
-        try {
-            return userRepository.findById(userId);
-        } finally {
-            ShardRoutingDataSource.clearCurrentShard();
-        }
+    @Transactional(readOnly = true)
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     @Transactional
-    public void deleteUserById(Integer userId) {
-        String shardKey = resolveShard(userId);
-        ShardRoutingDataSource.setCurrentShard(shardKey);
-        try {
-            userRepository.deleteById(userId);
-        } finally {
-            ShardRoutingDataSource.clearCurrentShard();
-        }
+    public User updateUser(Long id, User updatedUser) {
+        updatedUser.setId(id);
+        return userRepository.save(updatedUser);
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 }
