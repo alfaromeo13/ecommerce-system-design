@@ -45,7 +45,7 @@ rules:
         databaseStrategy:
           standard:
             shardingColumn: user_id
-            shardingAlgorithmName: user_inline
+            shardingAlgorithmName: other_inline
         keyGenerateStrategy:
           column: id
           keyGeneratorName: snowflake
@@ -55,7 +55,7 @@ rules:
         databaseStrategy:
           standard:
             shardingColumn: user_id
-            shardingAlgorithmName: user_inline
+            shardingAlgorithmName: other_inline
         keyGenerateStrategy:
           column: id
           keyGeneratorName: snowflake
@@ -65,7 +65,7 @@ rules:
         databaseStrategy:
           standard:
             shardingColumn: user_id
-            shardingAlgorithmName: user_inline
+            shardingAlgorithmName: other_inline
         keyGenerateStrategy:
           column: id
           keyGeneratorName: snowflake
@@ -75,7 +75,7 @@ rules:
         databaseStrategy:
           standard:
             shardingColumn: user_id
-            shardingAlgorithmName: user_inline
+            shardingAlgorithmName: other_inline
         keyGenerateStrategy:
           column: id
           keyGeneratorName: snowflake
@@ -92,6 +92,10 @@ rules:
         type: INLINE
         props:
           algorithm-expression: ds${id % 3}
+      other_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds${user_id % 3}
 
     keyGenerators:
       snowflake:

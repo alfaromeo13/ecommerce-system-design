@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- products
     CREATE TABLE IF NOT EXISTS products (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10,2),
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS shopping_cart (
 CREATE TABLE IF NOT EXISTS cart_items (
   id BIGINT PRIMARY KEY,
   cart_id BIGINT,
-  user_id BIGINT, -- ✅ new
+  user_id BIGINT,
   product_id BIGINT,
   quantity INT,
   FOREIGN KEY (cart_id) REFERENCES shopping_cart(id),
