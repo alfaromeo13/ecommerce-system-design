@@ -9,6 +9,6 @@ import java.util.List;
 public class ShoppingCartDTO {
     private Long id;
     private UserDTO user;
-    private LocalDate createdAt;
+    private LocalDate orderDate;
     private List<CartItemDTO> items;
 }
