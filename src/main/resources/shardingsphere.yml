@@ -1,0 +1,107 @@
+# This YAML configuration defines a sharding strategy for the `users`, `orders`, `shopping_cart`,
+# `order_items`, and `cart_items` tables across three databases (ds0, ds1, ds2) using ShardingSphere-JDBC.
+# All user-related data is distributed based on `user_id` (or related foreign keys like `order_id`, `cart_id`)
+# to ensure that records tied to the same user are stored in the same database node.
+# Binding tables (`orders` with `order_items`, and `shopping_cart` with `cart_items`) ensure consistent joins within the same shard.
+# The Snowflake algorithm is used for distributed primary key generation.
+# The `products` table is configured as a broadcast table, meaning it is automatically replicated across all shards
+# by ShardingSphere. This allows consistent reads and joins without needing to shard or manually synchronize it.
+
+dataSources:
+  ds0:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3307/shop1?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+  ds1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3308/shop2?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+  ds2:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3309/shop3?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+
+rules:
+  - !SHARDING
+    tables:
+      users:
+        actualDataNodes: ds${0..2}.users
+        databaseStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: user_inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+
+      shopping_cart:
+        actualDataNodes: ds${0..2}.shopping_cart
+        databaseStrategy:
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: user_inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+
+      cart_items:
+        actualDataNodes: ds${0..2}.cart_items
+        databaseStrategy:
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: user_inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+
+      orders:
+        actualDataNodes: ds${0..2}.orders
+        databaseStrategy:
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: user_inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+
+      order_items:
+        actualDataNodes: ds${0..2}.order_items
+        databaseStrategy:
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: user_inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+
+    bindingTables:
+      - orders,order_items
+      - shopping_cart,cart_items
+
+    defaultTableStrategy:
+      none:
+
+    shardingAlgorithms:
+      user_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds${id % 3}
+
+    keyGenerators:
+      snowflake:
+        type: SNOWFLAKE
+        props:
+          worker-id: 1
+
+  - !BROADCAST
+    tables:
+      - products
+
+props:
+  sql-show: true

@@ -15,9 +15,9 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    @Transactional
+    @Transactional // ?
     public User createUser(User user) {
-        return userRepository.save(user); // Snowflake ID will be generated automatically
+        return userRepository.save(user);
     }
 
     @Transactional(readOnly = true)

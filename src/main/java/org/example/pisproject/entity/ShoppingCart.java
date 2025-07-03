@@ -3,7 +3,7 @@ package org.example.pisproject.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -19,7 +19,7 @@ public class ShoppingCart {
     private User user;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDate orderDate;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
     private List<CartItem> items;

@@ -4,15 +4,15 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Entity
 @Table(name = "users")
 public class User {
     @Id
-    // Informs Hibernate that the ID will be generated externally (e.g. by ShardingSphere's Snowflake generator)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // If your table has no AUTO_INCREMENT, the insert goes through ShardingSphere.
 
     private String username;
     private String email;
@@ -20,5 +20,5 @@ public class User {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 }

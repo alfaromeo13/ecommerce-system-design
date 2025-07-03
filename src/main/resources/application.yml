@@ -1,20 +1,19 @@
 spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
   datasource:
     driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
-    url: jdbc:shardingsphere:classpath:sharding.yml
+    url: jdbc:shardingsphere:classpath:shardingsphere.yml
   jpa:
+    hibernate:
+      ddl-auto: none # Prevents Hibernate from touching your schema
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-    hibernate:
-      ddl-auto: create-drop
-
   cache:
     type: redis
-
   redis:
     host: redis
     port: 6379
-
-server:
-  port: 8080

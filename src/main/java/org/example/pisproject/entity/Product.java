@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -21,5 +21,5 @@ public class Product {
     private String category;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDate orderDate;
 }
