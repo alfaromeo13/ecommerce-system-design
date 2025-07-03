@@ -5,6 +5,7 @@ import org.example.pisproject.entity.CartItem;
 import org.example.pisproject.entity.Product;
 import org.example.pisproject.entity.ShoppingCart;
 import org.example.pisproject.entity.User;
+import org.example.pisproject.repository.CartItemRepository;
 import org.example.pisproject.repository.ProductRepository;
 import org.example.pisproject.repository.ShoppingCartRepository;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class ShoppingCartService {
 
     private final ShoppingCartRepository cartRepo;
     private final ProductRepository productRepository;
+    private final CartItemRepository cartItemRepository;
 
     @Transactional
     public ShoppingCart createCartForUser(Long userId) {
@@ -52,7 +54,7 @@ public class ShoppingCartService {
 
     @Transactional
     public void removeItemFromCart(Long itemId) {
-        cartRepo.deleteCartItemById(itemId);
+        cartItemRepository.deleteById(itemId);
     }
 
     @Transactional(readOnly = true)
