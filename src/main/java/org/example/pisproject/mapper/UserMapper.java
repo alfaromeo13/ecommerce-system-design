@@ -1,6 +1,6 @@
 package org.example.pisproject.mapper;
 
-import org.example.pisproject.dto.UsersDTO;
+import org.example.pisproject.dto.UserDTO;
 import org.example.pisproject.entity.User;
 import org.mapstruct.Mapper;
 
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    User toEntity(UsersDTO usersDTO);
-    UsersDTO toDTO(User user);
-    List<UsersDTO> toDTOList(List<User> user);
+    User toEntity(UserDTO usersDTO);
+    UserDTO toDTO(User user);
+    List<UserDTO> toDTOList(List<User> user);
 }

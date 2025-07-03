@@ -3,7 +3,7 @@ package org.example.pisproject.dto;
 import lombok.Data;
 
 @Data
-public class UsersDTO {
+public class UserDTO {
     private Long id;
     private String username;
     private String password;
