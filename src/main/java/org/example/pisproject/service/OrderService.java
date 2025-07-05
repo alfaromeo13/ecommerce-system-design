@@ -1,10 +1,12 @@
 package org.example.pisproject.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pisproject.dto.OrderDTO;
 import org.example.pisproject.entity.Order;
 import org.example.pisproject.entity.OrderItem;
 import org.example.pisproject.entity.Product;
 import org.example.pisproject.entity.User;
+import org.example.pisproject.mapper.OrderMapper;
 import org.example.pisproject.repository.OrderRepository;
 import org.example.pisproject.repository.ProductRepository;
 import org.springframework.cache.annotation.CacheEvict;
@@ -15,19 +17,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
+    // NOTE: We cache DTOs instead of entities to avoid LazyInitializationException. This ensures that all needed data
+    // is fully initialized before caching, since entities rely on the persistence context which is not available during deserialization.
+
     private final OrderRepository orderRepo;
+    private final OrderMapper orderMapper;
     private final ProductRepository productRepo;
 
     @Transactional
     @CachePut(value = "orders", key = "#result.id")
     @CacheEvict(value = "ordersByUser", key = "#userId")
-    public Order placeOrder(Long userId, Order order) {
+    public OrderDTO placeOrder(Long userId, Order order) {
         User user = new User();
         user.setId(userId);
         order.setUser(user);
@@ -44,20 +49,24 @@ public class OrderService {
             }
         }
 
-        return orderRepo.save(order);
+        Order saved = orderRepo.save(order);
         // about above line: All OrderItem entities attached to the Order will be automatically persisted, updated, or deleted when you save the Order.
-        // hibernate will then cascade that operation to persist all OrderItems in order.getItems(). Because in Order class we have  CascadeType.ALL
+        // hibernate will then cascade that operation to persist all OrderItems in order.getItems(). Because in Order class we have CascadeType.ALL
+        return orderMapper.toDTO(saved);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "orders", key = "#id")
-    public Optional<Order> getOrderById(Long id) {
-        return orderRepo.findById(id);
+    public OrderDTO getOrderById(Long id) {
+        Order order = orderRepo.findByIdWithItemsAndProducts(id)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        return orderMapper.toDTO(order);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "ordersByUser", key = "#userId")
-    public List<Order> getOrdersByUser(Long userId) {
-        return orderRepo.findByUserId(userId);
+    public List<OrderDTO> getOrdersByUser(Long userId) {
+        List<Order> orders = orderRepo.findByUserIdWithItemsAndProducts(userId);
+        return orderMapper.toDTOList(orders);
     }
 }

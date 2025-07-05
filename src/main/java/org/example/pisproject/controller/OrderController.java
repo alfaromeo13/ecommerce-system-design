@@ -19,18 +19,16 @@ public class OrderController {
 
     @PostMapping("/{userId}")
     public ResponseEntity<OrderDTO> placeOrder(@PathVariable Long userId, @RequestBody OrderDTO orderDTO) {
-        return ResponseEntity.ok(orderMapper.toDTO(orderService.placeOrder(userId, orderMapper.toEntity(orderDTO))));
+        return ResponseEntity.ok(orderService.placeOrder(userId, orderMapper.toEntity(orderDTO)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDTO> getOrder(@PathVariable Long id) {
-        return orderService.getOrderById(id)
-                .map(order -> ResponseEntity.ok(orderMapper.toDTO(order)))
-                .orElse(ResponseEntity.notFound().build());
+    public OrderDTO getOrder(@PathVariable Long id) {
+        return orderService.getOrderById(id);
     }
 
     @GetMapping("/user/{userId}")
     public List<OrderDTO> getUserOrders(@PathVariable Long userId) {
-        return orderMapper.toDTOList(orderService.getOrdersByUser(userId));
+        return orderService.getOrdersByUser(userId);
     }
 }

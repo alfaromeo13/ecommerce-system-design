@@ -17,7 +17,7 @@ spring:
   cache:
     type: redis
     redis:
-      time-to-live: 60000 # data is stored for 1 minute in cache.
+      time-to-live: 60000 # TTL: data is stored for 1 minute in cache.
 
   data:
     redis:
