@@ -22,21 +22,20 @@ public class ShoppingCartController {
         return ResponseEntity.ok(shoppingCartMapper.toDTO(cartService.createCartForUser(userId)));
     }
 
-    @PostMapping("/{userId}/items")
+    @PostMapping("/{userId}/item")
     public ResponseEntity<ShoppingCartDTO> addItem(@PathVariable Long userId, @RequestBody CartItemDTO dto) {
         ShoppingCart updated = cartService.addItemToCart(userId, dto.getProductId(), dto.getQuantity());
         return ResponseEntity.ok(shoppingCartMapper.toDTO(updated));
     }
 
-    @DeleteMapping("/items/{itemId}")
-    public ResponseEntity<Void> removeItem(@PathVariable Long itemId) {
-        cartService.removeItemFromCart(itemId);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("user/{userId}/item/{itemId}")
+    public ResponseEntity<ShoppingCartDTO> removeItem(@PathVariable Long userId, @PathVariable Long itemId) {
+        return ResponseEntity.ok(shoppingCartMapper.toDTO(cartService.removeItemFromCart(userId,itemId)));
     }
 
-    @GetMapping("/{cartId}")
-    public ResponseEntity<ShoppingCartDTO> getCart(@PathVariable Long cartId) {
-        return cartService.getCartByCartId(cartId)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ShoppingCartDTO> getByUserId(@PathVariable Long userId) {
+        return cartService.getCartByUserId(userId)
                 .map(cart -> ResponseEntity.ok(shoppingCartMapper.toDTO(cart)))
                 .orElse(ResponseEntity.notFound().build());
     }

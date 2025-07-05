@@ -5,9 +5,10 @@ import org.example.pisproject.entity.CartItem;
 import org.example.pisproject.entity.Product;
 import org.example.pisproject.entity.ShoppingCart;
 import org.example.pisproject.entity.User;
-import org.example.pisproject.repository.CartItemRepository;
 import org.example.pisproject.repository.ProductRepository;
 import org.example.pisproject.repository.ShoppingCartRepository;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,9 +22,9 @@ public class ShoppingCartService {
 
     private final ShoppingCartRepository cartRepo;
     private final ProductRepository productRepository;
-    private final CartItemRepository cartItemRepository;
 
     @Transactional
+    @CachePut(value = "userCarts", key = "#userId")
     public ShoppingCart createCartForUser(Long userId) {
         return cartRepo.findByUserId(userId).orElseGet(() -> {
             ShoppingCart cart = new ShoppingCart();
@@ -40,6 +41,7 @@ public class ShoppingCartService {
     }
 
     @Transactional
+    @CachePut(value = "userCarts", key = "#userId")
     public ShoppingCart addItemToCart(Long userId, Long productId, int quantity) {
         ShoppingCart cart = cartRepo.findByUserId(userId).orElse(null);
         Product product = productRepository.findById(productId).orElse(null);
@@ -49,16 +51,22 @@ public class ShoppingCartService {
         item.setUser(cart.getUser());
         item.setQuantity(quantity);
         cart.getItems().add(item);
-        return cartRepo.save(cart); // cascades the item
+        return cartRepo.save(cart); // cascades the item :D
     }
 
     @Transactional
-    public void removeItemFromCart(Long itemId) {
-        cartItemRepository.deleteById(itemId);
+    @CachePut(value = "userCarts", key = "#userId") // Update the whole cart with one item removed
+    public ShoppingCart removeItemFromCart(Long userId, Long itemId) {
+        ShoppingCart cart = cartRepo.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+        cart.getItems().removeIf(item -> item.getId().equals(itemId)); // Remove item in-memory
+        return cartRepo.save(cart); // cascades the item
     }
 
     @Transactional(readOnly = true)
-    public Optional<ShoppingCart> getCartByCartId(Long cartId) {
-        return cartRepo.findById(cartId);
+    @Cacheable(value = "userCarts", key = "#userId")
+    public Optional<ShoppingCart> getCartByUserId(Long userId) {
+        return cartRepo.findByUserId(userId);
     }
+
 }

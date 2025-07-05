@@ -2,12 +2,13 @@ package org.example.pisproject.dto;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class OrderDTO {
+public class OrderDTO implements Serializable {
     private Long id;
     private Long userId;
     private BigDecimal totalAmount;

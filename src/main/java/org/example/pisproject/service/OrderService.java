@@ -7,6 +7,9 @@ import org.example.pisproject.entity.Product;
 import org.example.pisproject.entity.User;
 import org.example.pisproject.repository.OrderRepository;
 import org.example.pisproject.repository.ProductRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +25,8 @@ public class OrderService {
     private final ProductRepository productRepo;
 
     @Transactional
+    @CachePut(value = "orders", key = "#result.id")
+    @CacheEvict(value = "ordersByUser", key = "#userId")
     public Order placeOrder(Long userId, Order order) {
         User user = new User();
         user.setId(userId);
@@ -45,11 +50,13 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "orders", key = "#id")
     public Optional<Order> getOrderById(Long id) {
         return orderRepo.findById(id);
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "ordersByUser", key = "#userId")
     public List<Order> getOrdersByUser(Long userId) {
         return orderRepo.findByUserId(userId);
     }

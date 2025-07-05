@@ -1,4 +1,4 @@
--- users
+
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
@@ -7,8 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at DATE
 );
 
--- products
-    CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE IF NOT EXISTS products (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -18,7 +17,6 @@ CREATE TABLE IF NOT EXISTS users (
     created_at DATE
 );
 
--- orders
 CREATE TABLE IF NOT EXISTS orders (
     id BIGINT PRIMARY KEY,
     user_id BIGINT,
@@ -28,7 +26,6 @@ CREATE TABLE IF NOT EXISTS orders (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- order_items
 CREATE TABLE IF NOT EXISTS order_items (
    id BIGINT PRIMARY KEY,
    order_id BIGINT,
@@ -41,7 +38,6 @@ CREATE TABLE IF NOT EXISTS order_items (
    FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
--- shopping_cart
 CREATE TABLE IF NOT EXISTS shopping_cart (
     id BIGINT PRIMARY KEY,
     user_id BIGINT UNIQUE,
@@ -49,7 +45,6 @@ CREATE TABLE IF NOT EXISTS shopping_cart (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- cart_items
 CREATE TABLE IF NOT EXISTS cart_items (
   id BIGINT PRIMARY KEY,
   cart_id BIGINT,
