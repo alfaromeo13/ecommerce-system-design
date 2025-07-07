@@ -23,16 +23,22 @@ import java.util.Properties;
 
 @Configuration
 public class ShardingDataSourceConfig {
+
 /*
- This  configuration defines a sharding strategy for the `users`, `orders`, `shopping_cart`,
- `order_items`, and `cart_items` tables across three databases (ds0, ds1, ds2) using ShardingSphere-JDBC.
- All user-related data is distributed based on `user_id` (or related foreign keys like `order_id`, `cart_id`)
- to ensure that records tied to the same user are stored in the same database node.
- Binding tables (`orders` with `order_items`, and `shopping_cart` with `cart_items`) ensure consistent joins within the same shard.
- The Snowflake algorithm is used for distributed primary key generation.
- The `products` table is configured as a broadcast table, meaning it is automatically replicated across all shards
- by ShardingSphere. This allows consistent reads and joins without needing to shard or manually synchronize it.
- */
+ This configuration sets up sharding for the `users`, `orders`, `shopping_cart`, `order_items`, and `cart_items` tables
+ across three MySQL databases (ds0, ds1, ds2).
+
+ All user-related data is distributed based on `user_id` to ensure that records tied to the same user reside in the same
+ database node, enabling efficient joins and scalability.
+
+ Binding table groups (`orders` with `order_items`, and `shopping_cart` with `cart_items`) ensure consistent joins
+ within the same shard.
+
+ A Snowflake algorithm is used for distributed primary key generation across shards.
+
+ The `products` table is configured as a broadcast table, meaning it is automatically replicated across all shards.
+ This allows consistent reads and joins without needing to shard or manually synchronize it.
+*/
 
     @Value("${WORKER_ID:1}")
     private int workerId;
