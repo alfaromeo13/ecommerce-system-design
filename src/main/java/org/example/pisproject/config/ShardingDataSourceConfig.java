@@ -42,6 +42,7 @@ public class ShardingDataSourceConfig {
  I wrote below with the help of official documentation:
  https://shardingsphere.apache.org/document/current/en/user-manual/shardingsphere-jdbc/java-api/rules/sharding/
 */
+
     @Value("${WORKER_ID:1}")
     private int workerId;
 
