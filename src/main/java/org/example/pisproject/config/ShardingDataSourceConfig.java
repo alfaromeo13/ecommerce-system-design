@@ -38,8 +38,10 @@ public class ShardingDataSourceConfig {
 
  The `products` table is configured as a broadcast table, meaning it is automatically replicated across all shards.
  This allows consistent reads and joins without needing to shard or manually synchronize it.
-*/
 
+ I wrote below with the help of official documentation:
+ https://shardingsphere.apache.org/document/current/en/user-manual/shardingsphere-jdbc/java-api/rules/sharding/
+*/
     @Value("${WORKER_ID:1}")
     private int workerId;
 
