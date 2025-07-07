@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-app
+  labels:
+    app: springboot-app
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  clusterIP: None  # Headless service for StatefulSet
+  selector:
+    app: springboot-app
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: springboot-app
+spec:
+  serviceName: springboot-app
+  replicas: 3
+  selector:
+    matchLabels:
+      app: springboot-app
+  template:
+    metadata:
+      labels:
+        app: springboot-app
+    spec:
+      containers:
+        - name: springboot-container
+          image: jovanvukovicc/springboot-ecommerce-k8s:1.0
+          ports:
+            - containerPort: 8080
+          env:
+            - name: WORKER_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              export WORKER_ID=$(expr $(echo $WORKER_ID | grep -oE '[0-9]+$') + 1);
+              echo "Resolved WORKER_ID=$WORKER_ID";
+              exec java -jar /app/pis.jar
