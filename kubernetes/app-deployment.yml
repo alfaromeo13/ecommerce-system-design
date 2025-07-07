@@ -35,7 +35,7 @@ spec:
             - containerPort: 8080
           env:
             - name: MYSQL_REPLICAS
-              value: "5"   # When Changing number of mysql replicas change also in mysql-shop-deployment.yml !!!
+              value: "5"  # TODO: When Changing number of mysql replicas change also in mysql-shop-deployment.yml !!!
             - name: WORKER_ID
               valueFrom:
                 fieldRef:
