@@ -43,22 +43,18 @@ public class ShardingDataSourceConfig {
     @Value("${WORKER_ID:1}")
     private int workerId;
 
+    @Value("${MYSQL_REPLICAS:3}")
+    private int replicaCount;
+
     @Bean
     public DataSource dataSource() throws SQLException {
 
         Map<String, DataSource> dataSourceMap = new HashMap<>();
 
-        // DNS names for StatefulSet pods
-        String[] hosts = {
-                "mysql-shop-0.mysql-shop",
-                "mysql-shop-1.mysql-shop",
-                "mysql-shop-2.mysql-shop"
-        };
-
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < replicaCount; i++) {
             HikariConfig config = new HikariConfig();
             config.setDriverClassName("com.mysql.cj.jdbc.Driver");
-            config.setJdbcUrl("jdbc:mysql://" + hosts[i] + ":3306/shop" +
+            config.setJdbcUrl("jdbc:mysql://mysql-shop-"+i+".mysql-shop:3306/shop" +
                     "?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8");
             config.setUsername("root");
             config.setPassword("root");
@@ -89,12 +85,12 @@ public class ShardingDataSourceConfig {
 
         // Sharding algorithms
         Properties userInlineProps = new Properties();
-        userInlineProps.setProperty("algorithm-expression", "ds${id % 3}");
+        userInlineProps.setProperty("algorithm-expression", "ds${id % " + replicaCount + "}");
         shardingRule.getShardingAlgorithms().put("user_inline",
                 new AlgorithmConfiguration("INLINE", userInlineProps));
 
         Properties otherInlineProps = new Properties();
-        otherInlineProps.setProperty("algorithm-expression", "ds${user_id % 3}");
+        otherInlineProps.setProperty("algorithm-expression", "ds${user_id % " + replicaCount + "}");
         shardingRule.getShardingAlgorithms().put("other_inline",
                 new AlgorithmConfiguration("INLINE", otherInlineProps));
 
@@ -112,9 +108,8 @@ public class ShardingDataSourceConfig {
     }
 
     private ShardingTableRuleConfiguration createTableRule(String tableName, String shardingColumn, String algorithmName) {
-        ShardingTableRuleConfiguration config = new ShardingTableRuleConfiguration(
-                tableName, "ds${0..2}." + tableName
-        );
+        String actualDataNodes = "ds${0.." + (replicaCount - 1) + "}." + tableName;
+        ShardingTableRuleConfiguration config = new ShardingTableRuleConfiguration(tableName, actualDataNodes);
         config.setDatabaseShardingStrategy(new StandardShardingStrategyConfiguration(shardingColumn, algorithmName));
         config.setKeyGenerateStrategy(new KeyGenerateStrategyConfiguration("id", "snowflake"));
         return config;

@@ -17,7 +17,7 @@ metadata:
   name: mysql-shop
 spec:
   serviceName: mysql-shop
-  replicas: 3
+  replicas: 5 # When Changing number of mysql replicas change also number in app-deployment.yml !!!
   selector:
     matchLabels:
       app: mysql-shop
