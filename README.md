@@ -34,9 +34,7 @@ and fault-tolerant container orchestration, with full support for distributed da
 
 <h2 align="center">System Architecture</h2>
 
-<p align="center">
-  <img src="img/architectures.png" alt="System Architecture" />
-</p>
+<img src="img/architecture.svg" alt="System Architecture" style="width: 100%; display: block; margin: 0 auto;" />
 
 <h2 align="center">Sharded Database Design</h2>
 
