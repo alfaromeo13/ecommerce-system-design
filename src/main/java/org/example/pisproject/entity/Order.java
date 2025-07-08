@@ -28,6 +28,17 @@ public class Order implements Serializable {
     @Column(name = "created_at")
     private LocalDate orderDate;
 
+    // When you persist, update, or delete an Order, the same operation is automatically cascaded to its OrderItem list.
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items;
+
+    /*
+        ALL	    Applies all cascade types below
+        PERSIST	When you persist() the parent, the child is also saved
+        MERGE	When you merge() the parent, the child is updated too
+        REMOVE	When you remove() the parent, the child is deleted too
+        REFRESH	If you refresh() the parent from DB, the child is refreshed too
+        DETACH	When the parent is detached from EntityManager, so is the child
+
+     */
 }

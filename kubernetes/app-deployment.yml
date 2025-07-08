@@ -1,3 +1,5 @@
+# Note: Uses Internal load balancing
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -10,16 +12,21 @@ spec:
     - port: 8080
       targetPort: 8080
       nodePort: 30080
+      # This exposes the app on all Kubernetes nodes at port 30080.
+      # The service forwards traffic to one of the backend pods on port 8080.
+      # When you hit nodeIP:30080, the Kubernetes service load balances requests across all pods.
   selector:
     app: springboot-app
 ---
 apiVersion: apps/v1
 kind: StatefulSet
+  # StatefulSets are typically used for stateful apps (databases, queues, etc.).
+  # Spring Boot apps are usually stateless, and they’re better managed with a Deployment.
 metadata:
   name: springboot-app
 spec:
   serviceName: springboot-app
-  replicas: 3
+  replicas: 3 # creates 3 pods
   selector:
     matchLabels:
       app: springboot-app
@@ -30,18 +37,20 @@ spec:
     spec:
       containers:
         - name: springboot-container
-          image: jovanvukovicc/springboot-ecommerce-k8s:1.0
+          image: jovanvukovicc/springboot-ecommerce-k8s:1.0 # Runs your Spring Boot app from Docker Hub.
           ports:
-            - containerPort: 8080
+            - containerPort: 8080 # Exposes port 8080 inside the pod
           env:
             - name: MYSQL_REPLICAS
-              value: "5"  # TODO: When Changing number of mysql replicas change also in mysql-shop-deployment.yml !!!
+              value: "3"  # TODO: When Changing number of mysql replicas change also in mysql-shop-deployment.yml !!!
             - name: WORKER_ID
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
           command: ["/bin/sh", "-c"]
           args:
+          # Avoids duplicate worker IDs to avoid collisions. Because Snowflake IDs are generated locally, without
+          # central coordination, you need a way to prevent different nodes from generating the same ID at the same time.
             - |
               export WORKER_ID=$(expr $(echo $WORKER_ID | grep -oE '[0-9]+$') + 1);
               echo "Resolved WORKER_ID=$WORKER_ID";

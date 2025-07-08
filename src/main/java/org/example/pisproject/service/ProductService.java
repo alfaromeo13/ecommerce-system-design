@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +26,7 @@ public class ProductService {
     @CacheEvict(value = "allProducts", allEntries = true)
     @CachePut(value = "products", key = "#result.id")
     public Product createProduct(Product product) {
+        product.setOrderDate(LocalDate.now());
         return productRepository.save(product);
     }
 

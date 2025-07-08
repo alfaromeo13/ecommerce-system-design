@@ -1,23 +1,27 @@
+# NOTE: Here Kubernetes won't assign a virtual IP or do round-robin load balancing.
+
 apiVersion: v1
 kind: Service
 metadata:
   name: mysql-shop
   labels:
     app: mysql-shop
+    # Creates a service named mysql-shop, labeled with app: mysql-shop.
 spec:
   ports:
     - port: 3306
+    # Exposes port 3306, the default MySQL port.
   clusterIP: None  # Headless service for stable DNS
   selector:
     app: mysql-shop
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: StatefulSet  # each pod gets a unique, predictable DNS name like mysql-shop-0,  mysql-shop-1, ...
 metadata:
   name: mysql-shop
 spec:
   serviceName: mysql-shop
-  replicas: 5 # TODO: When Changing number of mysql replicas change also number in app-deployment.yml !!!
+  replicas: 3 # TODO: When Changing number of mysql replicas change also number in app-deployment.yml !!!
   selector:
     matchLabels:
       app: mysql-shop
@@ -33,18 +37,22 @@ spec:
             - containerPort: 3306
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secrets
+                  key: password
             - name: MYSQL_DATABASE
               value: shop
           volumeMounts:
+            # Mounts the persistent volume to store MySQL data.
             - name: mysql-storage
               mountPath: /var/lib/mysql
-  volumeClaimTemplates:
+  volumeClaimTemplates: # One PVC Per Pod
     - metadata:
-        name: mysql-storage
+        name: mysql-storage # Creates a PVC named mysql-storage per replica
       spec:
         storageClassName: standard
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: [ "ReadWriteOnce" ] #  means only one pod on one node can mount and write to the volume at a time.
         resources:
           requests:
-            storage: 300Mi
+            storage: 300Mi # Requests 300Mi of persistent storage per MySQL pod.

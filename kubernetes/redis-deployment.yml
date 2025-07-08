@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: redis
-  replicas: 1
+  replicas: 1 # Runs 1 Redis pod.
   template:
     metadata:
       labels:
@@ -21,9 +21,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
+  name: redis # Creates a Kubernetes Service named redis.
 spec:
   ports:
-    - port: 6379
+    - port: 6379 # Exposes port 6379 inside the cluster.
   selector:
     app: redis
+
+#    All app replicas share the same cache state
+#    You avoid cache duplication per instance
+#    Useful for things like: login tokens, user sessions, product info, rate-limiting, etc.
+#   All Spring Boot replicas (pods) are connecting to that same Redis instance

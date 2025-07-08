@@ -22,8 +22,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderService {
 
-    // NOTE: We cache DTOs instead of entities to avoid LazyInitializationException. This ensures that all needed data
-    // is fully initialized before caching, since entities rely on the persistence context which is not available during deserialization.
+    /*
+        NOTE: We cache DTOs instead of entities to avoid LazyInitializationException. This ensures that all needed data
+        is fully initialized before caching, since entities rely on the persistence context which is not available during deserialization.
+        Caching an entity means you might cache an object with uninitialized lazy-loaded fields.
+        Later, when you deserialize that entity from the cache, JPA/Hibernate is not managing it anymore, so any attempt to load those lazy fields fails.
+     */
 
     private final OrderRepository orderRepo;
     private final OrderMapper orderMapper;
@@ -52,6 +56,7 @@ public class OrderService {
         Order saved = orderRepo.save(order);
         // about above line: All OrderItem entities attached to the Order will be automatically persisted, updated, or deleted when you save the Order.
         // hibernate will then cascade that operation to persist all OrderItems in order.getItems(). Because in Order class we have CascadeType.ALL
+        // Because of cascade = ALL → item1 and item2 are saved automatically.If you didn’t set cascade, you’d have to save each OrderItem manually.
         return orderMapper.toDTO(saved);
     }
 

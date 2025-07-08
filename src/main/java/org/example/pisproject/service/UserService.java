@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,7 @@ public class UserService {
     @CacheEvict(value = "allUsers", allEntries = true)
     @CachePut(value = "users", key = "#result.id")
     public User createUser(User user) {
+        user.setCreatedAt(LocalDate.now());
         return userRepository.save(user);
     }
 
